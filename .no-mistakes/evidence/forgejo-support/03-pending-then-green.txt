@@ -1,0 +1,38 @@
+### Scenario C: single pending status on page 1 refuses
+
+$ bin/fm-pr-check.sh t-pend https://localhost/alice/demo/pulls/3
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+WARNING: queued wakes pending - drain them with bin/fm-wake-drain.sh before anything else.
+armed: state/t-pend.check.sh
+exit=0
+
+$ bin/fm-pr-merge.sh t-pend https://localhost/alice/demo/pulls/3
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+WARNING: queued wakes pending - drain them with bin/fm-wake-drain.sh before anything else.
+armed: state/t-pend.check.sh
+error: refusing to merge https://localhost/alice/demo/pulls/3
+  - the combined commit status at head a18014e5b63c55ae8ce1395499f9a3b7ea4665c9 is "pending", not success
+exit=1
+{"number":3,"state":"open","merged":false}
+-- status goes success; merge with repo default style:
+
+$ bin/fm-pr-merge.sh t-pend https://localhost/alice/demo/pulls/3
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+WARNING: queued wakes pending - drain them with bin/fm-wake-drain.sh before anything else.
+armed: state/t-pend.check.sh
+verified: https://localhost/alice/demo/pulls/3 is open and mergeable, with a green combined commit status at head a18014e5b63c55ae8ce1395499f9a3b7ea4665c9
+verified: https://localhost/alice/demo/pulls/3 is merged (state=closed, hasMerged=true)
+exit=0
+{"number":3,"state":"closed","merged":true}
+-- origin/main history:
+*   a6d6859 Merge pull request 'PR feat-pending' (#3) from feat-pending into main
+|\  
+| * a18014e add feat-pending
+* | 55f0588 PR feat-none (#2)
+* |   dc209d9 Merge pull request 'PR feat-many' (#1) from feat-many into main
+|\ \  
+| |/  
+|/|   
+| * a7282eb add feat-many
+|/  
+* b583573 base

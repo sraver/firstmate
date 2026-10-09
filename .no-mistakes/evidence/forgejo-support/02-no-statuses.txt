@@ -1,0 +1,18 @@
+### Scenario B: no statuses at all (statuses:null) still merges
+raw: {"state":"","sha":"","total_count":0,"statuses":null,"repository":null,"commit_url":"","url":""}
+
+
+$ bin/fm-pr-check.sh t-none https://localhost/alice/demo/pulls/2
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+WARNING: queued wakes pending - drain them with bin/fm-wake-drain.sh before anything else.
+armed: state/t-none.check.sh
+exit=0
+
+$ bin/fm-pr-merge.sh t-none https://localhost/alice/demo/pulls/2 -- --squash
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+WARNING: queued wakes pending - drain them with bin/fm-wake-drain.sh before anything else.
+armed: state/t-none.check.sh
+verified: https://localhost/alice/demo/pulls/2 is open and mergeable, with a green combined commit status at head 27a14825fa0c754b43b662bce495cb89221eb6ef
+verified: https://localhost/alice/demo/pulls/2 is merged (state=closed, hasMerged=true)
+exit=0
+{"number":2,"state":"closed","merged":true}

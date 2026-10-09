@@ -1,0 +1,27 @@
+### Scenario A: failing context pushed past the first 50-entry status page
+-- raw combined status at a7282ebc4f0fe7909511bec5b7b8396eb67b8160 (what Forgejo reports per page):
+page 1 limit=50: {"state":"success","total_count":50,"n":50,"contexts_failing":[]}
+page 2 limit=50: {"state":"failure","total_count":6,"n":6,"contexts_failing":["ci/00-red"]}
+page 3 limit=50: {"state":"","total_count":0,"n":0,"contexts_failing":[]}
+default request (no paging): {"state":"success","total_count":30,"n":30}
+
+$ bin/fm-pr-check.sh t-many https://localhost/alice/demo/pulls/1
+armed: state/t-many.check.sh
+exit=0
+
+$ bin/fm-pr-merge.sh t-many https://localhost/alice/demo/pulls/1 -- --merge
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+armed: state/t-many.check.sh
+error: refusing to merge https://localhost/alice/demo/pulls/1
+  - the combined commit status at head a7282ebc4f0fe7909511bec5b7b8396eb67b8160 is "failure", not success
+exit=1
+{"number":1,"state":"open","merged":false}
+-- turn ci/00-red green, re-merge:
+
+$ bin/fm-pr-merge.sh t-many https://localhost/alice/demo/pulls/1 -- --merge
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+armed: state/t-many.check.sh
+verified: https://localhost/alice/demo/pulls/1 is open and mergeable, with a green combined commit status at head a7282ebc4f0fe7909511bec5b7b8396eb67b8160
+verified: https://localhost/alice/demo/pulls/1 is merged (state=closed, hasMerged=true)
+exit=0
+{"number":1,"state":"closed","merged":true}
