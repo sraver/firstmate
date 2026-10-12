@@ -1,0 +1,81 @@
+
+===== fixture: disposable home + worktree + fake-root guard + fixture tea/jq
+fixture home: /tmp/fm-live-http.g3nslG
+
+===== A1: with no pin list, arming the http host:port URL is refused and arms nothing
+rc=2 out=error: invalid PR check request
+PASS A1
+PASS A1-nothing-armed
+PASS A1-no-pr-recorded
+
+===== A2: with the pin set, look-alike and unpinned spellings stay refused (exact match)
+rc=2 url=http://10.10.0.1:3001.evil.com/o/r/pulls/7
+PASS A2-refused http://10.10.0.1:3001.evil.com/o/r/pulls/7
+rc=2 url=http://10.10.0.1:300/o/r/pulls/7
+PASS A2-refused http://10.10.0.1:300/o/r/pulls/7
+rc=2 url=http://10.10.0.1/o/r/pulls/7
+PASS A2-refused http://10.10.0.1/o/r/pulls/7
+rc=2 url=http://internal.git.local:3001/o/r/pulls/7
+PASS A2-refused http://internal.git.local:3001/o/r/pulls/7
+rc=2 malformed-only pin list
+PASS A2-malformed-only
+
+===== A3: an https Forgejo URL still arms with the pin list present (https unchanged)
+rc=0 out=armed: state/task-live.check.sh
+PASS A3-armed
+PASS A3-pr-recorded
+
+===== B1: the pinned http host:port arms, records pr=, and arms the poll
+rc=0 out=armed: state/task-live.check.sh
+PASS B1-armed
+PASS B1-pr-recorded
+PASS B1-sidecar-host
+PASS B1-poll-armed
+
+===== B2: the armed poll wakes 'merged' through the http host:port login
+poll out=[merged]
+PASS B2-woke
+PASS B2-login-used
+
+===== B3: the same poll stays silent once the pin leaves its environment (read fresh)
+poll out=[]
+PASS B3-silent
+
+===== B4: an https login for the same host:port never serves the http poll (scheme pairing)
+poll out=[]
+PASS B4-scheme-paired
+
+===== B5: a login pinned to another host never serves this poll
+poll out=[]
+PASS B5-other-host
+
+===== B6: a doctored sidecar host:port the pin does not carry keeps the poll silent
+poll out=[]
+PASS B6-swapped-host-silent
+
+===== B7: with the pin set but no http login for that host:port, arming names the missing login
+rc=1 out=error: watching a Forgejo pull request at 10.10.0.1:3001 requires exactly one 'tea login' registered for that host (see 'tea login list')
+PASS B7
+PASS B7-nothing-armed
+
+===== D1: arming an https URL refuses when the only login for that host is http
+rc=1 out=error: watching a Forgejo pull request at git.example.com requires exactly one 'tea login' registered for that host (see 'tea login list')
+PASS D1
+
+===== D2: an https poll armed through an https login goes silent once the login flips to http
+https-login poll out=[merged]
+PASS D2-https-login-wakes
+http-login poll out=[]
+PASS D2-http-login-silent
+
+===== C1: fm-pr-merge.sh refuses an unpinned http URL as an invalid request
+rc=2 out=error: invalid PR merge request
+PASS C1
+
+===== C2: with the pin, the same URL passes the merge parse gate (fails later on missing metadata, not on the URL)
+rc=1 out=error: task metadata is unavailable
+PASS C2
+
+===== fixture removed: /tmp/fm-live-http.g3nslG
+
+ALL LIVE STEPS PASSED
