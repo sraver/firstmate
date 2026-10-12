@@ -1,0 +1,52 @@
+
+=== S0 regression contrast: at base commit the pin does not exist; pinned http URL must be refused there ===
+PASS: base commit refuses pinned http URL (feature absent: rc=1)
+
+=== S1 parser: pinned http host:port and bare host accepted, fields exact ===
+PASS: pinned host:port parses: provider=forgejo host=10.10.0.1:3001 path=o/r url=http://10.10.0.1:3001/o/r/pulls/7 owner=o repo=r
+PASS: pinned bare host parses: provider=forgejo host=internal.git.local path=team/repo url=http://internal.git.local/team/repo/pulls/9 owner=team repo=repo
+
+=== S2 parser adversarial: exact-match only; lookalikes, wrong shapes, malformed/empty pins refused ===
+PASS: refused lookalike http://10.10.0.1:3001.evil.com/o/r/pulls/7
+PASS: refused lookalike http://10.10.0.1:300/o/r/pulls/7
+PASS: refused lookalike http://10.10.0.1/o/r/pulls/7
+PASS: refused lookalike http://internal.git.local:3001/o/r/pulls/7
+PASS: refused lookalike http://10.10.0.1:3001.evil.com:3001/o/r/pulls/7
+PASS: refused lookalike http://elsewhere.example/o/r/pulls/7
+PASS: refused with pin list ''
+PASS: refused with pin list '10.10.0.1:3001.evil.com'
+PASS: refused with pin list ' http://10.10.0.1:3001'
+PASS: refused with pin list '10.10.0.1:3001:'
+PASS: refused with pin list 'http://10.10.0.1:3001,10.10.0.1:3001:'
+PASS: refused with pin unset
+PASS: empty entries around the real pin do not hide it
+
+=== S3 https unchanged: https URL parses as before; https-with-port still refused ===
+PASS: https URL unchanged: provider=forgejo host=git.example.com path=o/r url=https://git.example.com/o/r/pulls/1 owner=o repo=r
+PASS: https-with-port still refused
+
+=== S4 arming live: pinned http PR arms; unpinned refused as invalid; https-only login for pinned http host refused ===
+PASS: arming pinned http PR succeeded (rc=0)
+PASS: meta records pr=http://10.10.0.1:3001/o/r/pulls/7
+PASS: poll sidecar carries pinned host:port
+PASS: watcher armed byte-for-byte from bin/fm-pr-poll.sh
+PASS: empty pin: arming refused as invalid request, nothing armed
+PASS: https-only login on pinned host:port refused, names the missing login, nothing armed
+
+=== S5 poll live (real installed watcher): wakes only behind the pin and the pinned host ===
+PASS: poll wakes 'merged' for merged pinned http PR
+PASS: poll stays silent when the pin is absent from its environment
+PASS: poll stays silent when the only login is https on another host
+PASS: poll stays silent for an open (unmerged) PR
+PASS: doctored sidecar host:port (9999) cannot ride the 3001 pin
+
+=== S6 merge live: unpinned http refused as invalid; pinned merges through the pinned http login only ===
+PASS: unpinned http merge refused as invalid, nothing armed
+PASS: pinned http merge succeeded (rc=0)
+PASS: merge recorded pr=http://10.10.0.1:3001/o/r/pulls/7 before merging
+PASS: PR read through the pinned http login fm-fixture
+PASS: merge POST through the pinned http login
+PASS: unrelated https login never used
+
+=== SUMMARY ===
+ALL LIVE CHECKS PASSED

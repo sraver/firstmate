@@ -1,0 +1,77 @@
+# Live validation: FM_PR_FORGEJO_HTTP_HOSTS plain-http Forgejo allowlist
+# product: bin/fm-pr-check.sh + bin/fm-pr-lib.sh + bin/fm-pr-poll.sh at commit 7f06603
+# tea: Version: [1m0.16.0[0m	golang: 1.26.6	go-sdk: v1.2.0
+# disposable lab home: $LAB (marked fm-lab home), disposable Forgejo-style API on plain http 127.0.0.1:44927 and TLS 127.0.0.1:45577
+# real tea logins, isolated configs:
+$ tea login list --output json   # config A (plain-http instance)
+[
+  {
+    "name": "fm-lab",
+    "url": "http://127.0.0.1:44927",
+    "ssh_host": "127.0.0.1:44927",
+    "user": "fixture",
+    "default": "false"
+  }
+]
+$ tea login list --output json   # config B (https instance)
+[
+  {
+    "name": "fm-lab-tls",
+    "url": "https://127.0.0.1:45577",
+    "ssh_host": "127.0.0.1:45577",
+    "user": "fixture",
+    "default": "false"
+  }
+]
+
+== S1: arm a pinned plain-http PR URL (FM_PR_FORGEJO_HTTP_HOSTS=127.0.0.1:44927) ==
+$ FM_PR_FORGEJO_HTTP_HOSTS=127.0.0.1:44927 FM_HOME=$LAB bin/fm-pr-check.sh task-ev1 http://127.0.0.1:44927/fixture/fixture-repo/pulls/1
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+armed: state/task-ev1.check.sh
+-- recorded meta pr= line:
+pr=http://127.0.0.1:44927/fixture/fixture-repo/pulls/1
+-- poll sidecar (provider/url/host/path/number):
+forgejo
+http://127.0.0.1:44927/fixture/fixture-repo/pulls/1
+127.0.0.1:44927
+fixture/fixture-repo
+1
+
+== S1a: run the armed check while the PR is open (expect silence, rc=0) ==
+output=[] rc=0
+== S1b: same check after the instance reports the PR merged (expect 'merged') ==
+output=[merged] rc=0
+
+== S4: same armed check with FM_PR_FORGEJO_HTTP_HOSTS removed from the poll env (PR still merged; expect silence) ==
+output=[] rc=0
+== S4b: pin restored (expect 'merged' again) ==
+output=[merged] rc=0
+
+== S2: adversarial parses through the real arming entrypoint (pin present) ==
+$ ... fm-pr-check.sh task-ev2 'http://127.0.0.1:44927.evil.com/fixture/fixture-repo/pulls/1'
+   -> error: invalid PR check request ; check.sh armed: no
+$ ... fm-pr-check.sh task-ev2 'http://127.0.0.1:4492/fixture/fixture-repo/pulls/1'
+   -> error: invalid PR check request ; check.sh armed: no
+$ env -u FM_PR_FORGEJO_HTTP_HOSTS ... fm-pr-check.sh task-ev2 'http://127.0.0.1:44927/fixture/fixture-repo/pulls/1'
+   -> error: invalid PR check request ; check.sh armed: no
+
+== S3a: https URL, only the plain-http login registered (scheme pairing must refuse) ==
+   -> error: watching a Forgejo pull request at 127.0.0.1 requires exactly one 'tea login' registered for that host (see 'tea login list') ; check.sh armed: no
+== S3b: pinned http URL, only the https login registered (reverse pairing must refuse) ==
+   -> error: watching a Forgejo pull request at 127.0.0.1:44927 requires exactly one 'tea login' registered for that host (see 'tea login list') ; check.sh armed: no
+
+== S3-matrix: tea login resolution via fm_pr_forgejo_login (real tea, both configs) ==
+   login='fm-lab' rc=0 : http login serves the pinned http host:port  -> expect fm-lab, rc=0
+   login='' rc=5 : http login serves an https URL             -> expect rc!=0
+   login='fm-lab-tls' rc=0 : https login serves an https URL (port stripped from its url) -> expect fm-lab-tls, rc=0
+   login='' rc=5 : https login serves a plain-http URL        -> expect rc!=0
+
+== server request log (plain-http instance): authenticated tea reads of the PR ==
+GET /api/v1/user auth=token-ok
+GET /api/v1/user/keys?limit=50&page=1 auth=token-ok
+GET /api/v1/repos/fixture/fixture-repo/pulls/1 auth=token-ok
+GET /api/v1/repos/fixture/fixture-repo/pulls/1 auth=token-ok
+GET /api/v1/repos/fixture/fixture-repo/pulls/1 auth=token-ok
+GET /api/v1/repos/fixture/fixture-repo/pulls/1 auth=token-ok
+GET /api/v1/repos/fixture/fixture-repo/pulls/1 auth=token-ok
+GET /api/v1/repos/fixture/fixture-repo/pulls/1 auth=token-ok
