@@ -1,0 +1,25 @@
+== tea login add (disposable XDG config inside the lab) ==
+Warning: problem while finding a SSH key: Not Found
+Login as fmlab on http://127.0.0.1:3989 successful. Added this login as fm-lab
+Tip: pass --git-credentials (or run 'tea login helper setup') to authenticate 'git push' and 'git clone' over HTTPS with this token.
+rc=0
+== tea login list --output json (http login) ==
+[
+  {
+    "name": "fm-lab",
+    "url": "http://127.0.0.1:3989",
+    "ssh_host": "127.0.0.1:3989",
+    "user": "fmlab",
+    "default": "false"
+  }
+]
+== disposable https-only tea config (fixture copy, url scheme flipped) ==
+[
+  {
+    "name": "fm-lab",
+    "url": "https://127.0.0.1:3989",
+    "ssh_host": "127.0.0.1:3989",
+    "user": "fmlab",
+    "default": "false"
+  }
+]

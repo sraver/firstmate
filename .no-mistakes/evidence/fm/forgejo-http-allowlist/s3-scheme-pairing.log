@@ -1,0 +1,24 @@
+== S3a: pinned http URL, but the only tea login is https:// on the same host:port ==
+$ XDG_CONFIG_HOME=tea-xdg-https FM_PR_FORGEJO_HTTP_HOSTS=127.0.0.1:3989 fm-pr-check.sh task-httpslogin http://127.0.0.1:3989/fmlab/fixture-repo/pulls/7
+error: watching a Forgejo pull request at 127.0.0.1:3989 requires exactly one 'tea login' registered for that host (see 'tea login list')
+rc=1
+task-httpslogin armed files:
+task-httpslogin.meta
+
+== S3b: https PR URL (no port, no pin needed), only tea login is http://host:3989 ==
+== (the pre-change bare-hostname match would have served this URL; scheme pairing must refuse) ==
+$ XDG_CONFIG_HOME=tea-xdg fm-pr-check.sh task-pair https://127.0.0.1/fmlab/fixture-repo/pulls/7
+error: watching a Forgejo pull request at 127.0.0.1 requires exactly one 'tea login' registered for that host (see 'tea login list')
+rc=1
+task-pair armed files:
+task-pair.meta
+0
+no pr= recorded
+
+== S3c control: the http login DOES serve the pinned http URL (re-proves S1 arming on a second task) ==
+armed: state/task-httpslogin.check.sh
+rc=0
+task-httpslogin.check.sh
+task-httpslogin.meta
+task-httpslogin.pr-poll
+task-httpslogin.pr-poll-registration

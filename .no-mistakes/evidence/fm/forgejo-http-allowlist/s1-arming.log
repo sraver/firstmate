@@ -1,0 +1,10 @@
+$ FM_PR_FORGEJO_HTTP_HOSTS=127.0.0.1:3989 bin/fm-pr-check.sh task-live http://127.0.0.1:3989/fmlab/fixture-repo/pulls/7
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  5 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair a missing or failed watcher cycle with the omp tool fm_watch_arm_omp, or restart omp inside this home so /home/user/.no-mistakes/worktrees/4fdebf4eeaf1/01M4RPJE69V24NMWKKGJHTJBTH/.omp/extensions/fm-primary-turnend-guard.ts and /home/user/.no-mistakes/worktrees/4fdebf4eeaf1/01M4RPJE69V24NMWKKGJHTJBTH/.omp/extensions/fm-primary-omp-watch.ts auto-load from .omp/extensions/ (use -e with both paths only when starting omp from another directory).
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+armed: state/task-live.check.sh
+rc=0

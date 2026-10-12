@@ -1,0 +1,41 @@
+== add an https tea login on the TLS endpoint (fresh token) ==
+Login as fmlab on https://127.0.0.1:3990 successful. Added this login as fm-lab-tls
+[
+  {
+    "name": "fm-lab",
+    "url": "http://127.0.0.1:3989",
+    "ssh_host": "127.0.0.1:3989",
+    "user": "fmlab",
+    "default": "false"
+  },
+  {
+    "name": "fm-lab-tls",
+    "url": "https://127.0.0.1:3990",
+    "ssh_host": "127.0.0.1:3990",
+    "user": "fmlab",
+    "default": "false"
+  }
+]
+== arm the https PR URL (canonical portless host; no pin in env) ==
+armed: state/task-https.check.sh
+rc=0
+pr=https://127.0.0.1/fmlab/fixture-repo/pulls/7
+== poll the armed https watch (forge record merged; expect merged) ==
+output='merged' rc=0
+== adversarial: pin CANNOT widen https - an http-pinned host:port entry is not consulted for this https URL; nothing to refuse here, the https arm simply needs no pin ==
+== with both an http:3989 and an https:3990 login registered, the pinned http poll still resolves exactly one login ==
+task-live(http) output='merged' rc=0
+task-https(https) output='merged' rc=0
+== forge endpoint request log (plain + TLS stubs share one log) ==
+GET /api/v1/repos/fmlab/fixture-repo/pulls/7
+"GET /api/v1/repos/fmlab/fixture-repo/pulls/7 HTTP/1.1" 200 -
+GET /api/v1/user
+"GET /api/v1/user HTTP/1.1" 200 -
+GET /api/v1/user/keys
+"GET /api/v1/user/keys?limit=50&page=1 HTTP/1.1" 404 -
+GET /api/v1/repos/fmlab/fixture-repo/pulls/7
+"GET /api/v1/repos/fmlab/fixture-repo/pulls/7 HTTP/1.1" 200 -
+GET /api/v1/repos/fmlab/fixture-repo/pulls/7
+"GET /api/v1/repos/fmlab/fixture-repo/pulls/7 HTTP/1.1" 200 -
+GET /api/v1/repos/fmlab/fixture-repo/pulls/7
+"GET /api/v1/repos/fmlab/fixture-repo/pulls/7 HTTP/1.1" 200 -

@@ -1,0 +1,14 @@
+== poll 1: PR open on the forge (expect silence) ==
+$ bash state/task-live.check.sh   # PR state: open
+output='' rc=0
+== flip the forge record to merged ==
+$ bash state/task-live.check.sh   # PR state: merged
+output='merged' rc=0
+== poll re-reads the pin fresh: same merged PR, pin removed from env (expect silence) ==
+output='' rc=0
+== pin restored (expect merged again) ==
+output='merged' rc=0
+== watcher invocation shape: bin/fm-pr-poll.sh --validated (expect merged) ==
+output='merged' rc=0
+== watcher invocation shape, pin removed (expect silence) ==
+output='' rc=0

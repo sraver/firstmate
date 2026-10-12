@@ -1,0 +1,29 @@
+== S2: unpinned plain-http URL is refused at arming ==
+$ env -u FM_PR_FORGEJO_HTTP_HOSTS bin/fm-pr-check.sh task-nopin http://127.0.0.1:3989/fmlab/fixture-repo/pulls/7
+error: invalid PR check request
+rc=2
+$ FM_PR_FORGEJO_HTTP_HOSTS="" (empty list) same URL
+error: invalid PR check request
+rc=2
+task-nopin armed files: 1 (expect only the .meta)
+task-nopin.meta
+0
+no pr= recorded in task-nopin.meta
+
+== S2 adversarial: pin present, look-alike hosts refused ==
+$ ... fm-pr-check.sh task-evil http://127.0.0.1:398/fmlab/fixture-repo/pulls/7
+error: invalid PR check request
+rc=2
+$ ... fm-pr-check.sh task-evil http://127.0.0.1:3989.evil.com/fmlab/fixture-repo/pulls/7
+error: invalid PR check request
+rc=2
+$ ... fm-pr-check.sh task-evil http://127.0.0.1:39891/fmlab/fixture-repo/pulls/7
+error: invalid PR check request
+rc=2
+$ ... fm-pr-check.sh task-evil http://127.0.0.1:03989/fmlab/fixture-repo/pulls/7
+error: invalid PR check request
+rc=2
+task-evil armed files:
+task-evil.meta
+0
+no pr= recorded in task-evil.meta
