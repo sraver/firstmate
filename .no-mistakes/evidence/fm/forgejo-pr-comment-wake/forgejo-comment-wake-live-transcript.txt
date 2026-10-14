@@ -1,0 +1,83 @@
+== fixture: TLS cert, disposable Forgejo-API endpoint, real tea login ==
+endpoint https://127.0.0.1:48363  (pid 1961492)
+real tea logins (sandboxed XDG_CONFIG_HOME):
+    [
+      {
+        "name": "lab",
+        "url": "https://127.0.0.1:48363",
+        "ssh_host": "127.0.0.1:48363",
+        "user": "labuser",
+        "default": "false"
+      }
+    ]
+
+== L1: flag off - unconfigured home gains no observer, no wake class ==
+ok - arm without flag: silent exit 0
+ok - no sidecar written
+ok - no standing shim written
+ok - check without flag: silent exit 0
+
+== L2: flag on, allowlist missing/invalid - arm refuses loudly ==
+ok - arm refuses missing allowlist naming the file
+ok - refusal wrote no sidecar
+ok - arm refuses an invalid allowlist line
+
+== L3: flag + allowlist - arm baselines marker and binds the standing check ==
+ok - arm succeeds and names the sidecar
+    seen marker = 12 (newest pre-existing comment id is 12)
+ok - history baselined at newest comment id
+ok - standing shim mode 700
+ok - shim registered with trust binding
+
+== L4: watcher-path scan with no new comments stays silent (history never wakes) ==
+ok - no wake for pre-arm history
+
+== L5: new allowlisted captain '/fm' comment wakes exactly once ==
+ok - wake line names task, comment id, and PR URL
+    wake line: pr-comment: task task-a has new command comment id(s) 13 on https://127.0.0.1/o/r/pulls/7
+ok - marker advanced to 13
+ok - re-scan does not double-wake
+
+== L6 (adversarial): wrong author, bare comment, prefix lookalike never wake ==
+ok - non-allowlisted /fm, bare, and /fmship comments stay silent
+ok - ignored comments still advance marker (never wake later)
+ok - ignored window never wakes later
+
+== L7 (adversarial): removing the flag silences an already-armed poll ==
+ok - flag-removed scan stays silent
+ok - flag-removed scan leaves marker untouched
+
+== L8: allowlist edit applies without re-arming (captain plus trusted dev) ==
+ok - commands that arrived while the flag was off wake on return (none lost), multi-id list printed
+ok - no further wake for the same window
+ok - dev comment wakes exactly once
+
+== L9 (adversarial): endpoint down - silent, marker untouched, window re-read ==
+ok - endpoint-down scan stays silent
+ok - endpoint-down scan leaves marker untouched
+ok - window missed to the outage is re-read and wakes
+
+== L10: replacement PR re-arm re-baselines the marker ==
+ok - re-arm for the replacement PR succeeds
+ok - marker re-baselined to the replacement PR's newest id
+ok - sidecar retargeted
+ok - lower-id captain comment on the replacement PR wakes
+
+== L11 (adversarial): doctored sidecar is ignored ==
+ok - doctored sidecar produces no wake
+ok - doctored sidecar leaves marker untouched
+ok - doctored sidecar retained for inspection
+ok - re-arm over a doctored sidecar restores it, re-baselining at newest (history never wakes)
+ok - restored sidecar is valid again
+ok - restored arm does not wake history
+ok - new comment after restoration wakes
+
+== L12: disarm retires sidecar, marker, shim, and trust binding ==
+ok - disarm succeeds and names the sidecar
+ok - sidecar removed
+ok - marker removed
+ok - standing shim retired
+ok - trust binding retired
+
+SUMMARY: 41 passed, 0 failed
+endpoint handled requests: 17
