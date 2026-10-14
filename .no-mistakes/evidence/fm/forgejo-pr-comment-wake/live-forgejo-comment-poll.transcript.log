@@ -1,0 +1,58 @@
+
+=== P1: fm-pr-check records a Forgejo PR and arms the comment poll
+PASS: fm-pr-check exit 0 (recording refused nothing)
+PASS: meta records the canonical pr= URL
+PASS: comment-poll sidecar written
+PASS: standing shim mode 700
+PASS: standing shim registered with a trust binding
+PASS: arm baselined seen marker at newest comment id 12
+PASS: first poll after arm is silent (history never wakes)
+
+=== P2: a new captain /fm comment wakes exactly once; others stay silent
+PASS: one wake line for comment 13 naming task and PR
+PASS: marker advanced to 13
+PASS: re-poll of the same window is silent (no double wake)
+PASS: marker unchanged on silent re-poll
+PASS: non-captain /fm, bare captain, and /fmship comments never wake
+PASS: ignored comments still advanced the marker to 23
+
+=== P3: forge errors stay silent and keep the marker; the missed window re-reads
+PASS: HTTP 500 error body: silent, no wake
+PASS: HTTP 500 kept the marker at 23
+PASS: window missed to the HTTP error re-read and woke on 24
+PASS: non-JSON payload: silent, no wake
+PASS: bad payload kept the marker at 24
+PASS: window missed to the bad payload re-read and woke on 25
+
+=== P4: a PR retargeted by a concurrent arm mid-fetch leaves wake and marker untouched
+PASS: concurrent arm onto pulls/8 succeeded
+PASS: the mid-fetch-retargeted sweep printed no wake
+PASS: marker stayed at the replacement arm's baseline 3
+PASS: sidecar now targets pulls/8
+
+=== P5: the replacement PR's comments wake; re-record keeps its baseline
+PASS: fm-pr-check re-recorded pulls/8
+PASS: same-URL re-arm kept the replacement baseline
+PASS: the replacement PR's history stays silent
+PASS: captain comment on the replacement PR woke with its URL
+
+=== P6: a doctored sidecar is ignored; a cleaned-up task retires its poll
+PASS: doctored sidecar (path o/evil vs URL o/r) produced no wake
+PASS: doctored sidecar did not advance the marker
+PASS: doctored sidecar retained
+PASS: a cleaned-up task retires silently
+PASS: retired task's sidecar removed
+PASS: retired task's marker removed
+PASS: standing shim deliberately outlives the last sidecar
+PASS: arm refuses a task with no recorded PR
+PASS: arm refuses a GitHub PR URL
+PASS: arm succeeds once the login is unambiguous
+PASS: disarm succeeded
+PASS: disarm removed sidecar and marker
+PASS: disarm retired the standing shim and its trust binding (last sidecar)
+
+=== RESULT pass=40 fail=0
+
+=== P7-addendum: ambiguous tea login (live probe after drive)
+PASS: arm refuses an ambiguous tea login (rc=1, message names 'exactly one tea login')
+PASS: the standing check stays silent with an ambiguous login and writes no marker
